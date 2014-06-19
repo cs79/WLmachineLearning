@@ -1,3 +1,11 @@
 scratch work / exporatory graphs / trial models / etc. for predictive ML algo
 ====================================
 
+stuff to think about when planning the approach:
+
+what kind of preprocessing is required for what kind of model
+
+what kind of assumptions are fair to make about this specific set of data, that might inform model choice?  IE is the NB assumption of non-correlation between factors relevant here, if they were specifically instructed to do things in an individual "wrong" way?  that's not something that would have "naturally occuring" correlation; they're being told to do discrete activities, so while their may be some latent dimensions that have relationships still, is the "naive assumption" somehow "fairer" here? etc. (doesn't have to be NB, just think about this type of question for the data at hand - are they linear? etc.)
+
+occam's razor - don't overcomplicate the already complex black boxes; don't overfit; DON'T MODEL DREDGE just because caret makes it easy
+
