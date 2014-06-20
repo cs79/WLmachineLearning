@@ -9,3 +9,17 @@ what kind of assumptions are fair to make about this specific set of data, that 
 
 occam's razor - don't overcomplicate the already complex black boxes; don't overfit; DON'T MODEL DREDGE just because caret makes it easy
 
+## some model ideas to start with
+
+```{r}
+#naive bayes
+set.seed(256)
+fitNB <- train(classe~., data=training, method="nb", trControl=trainControl(method="cv"))
+```
+
+```{r}
+set.seed(256)
+fitRF <- train(classe~., data=training, method="rf")
+```
+
+

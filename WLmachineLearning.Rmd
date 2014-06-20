@@ -1,6 +1,13 @@
 Title (refer to HAR)
 ==============================
+```{r, echo=FALSE, results='hide'}
+library(caret)
+library(ggplot2)
+library(lattice)
+library(klaR)
+library(MASS)
 
+```
 You should create a report describing how you built your model, how you used cross validation, what you think the expected out of sample error is, and why you made the choices you did.
 
 ## Summary
@@ -28,7 +35,23 @@ test <- read.csv("./data/WLtestData.csv")
 
 ### Exploration and Pre-processing to create model
 
-think carefully about this; push a few exploratory figures to an appendix
+<think carefully about this; push a few exploratory figures to an appendix if there are any>
+
+NEED TO DEAL WITH THE FACTOR VARIABLES HERE - turn into dummies or whatever, but will cause model fits to crash if they're in there
+
+## REMOVE ALL NON-SENSOR DATA VARIABLES FROM SET - define which columns to toss, then toss from both training and testing
+
+use something like:
+
+keepNames <- grep(c(pattern 1, pattern 2, pattern 3, etc. - should only be a dozen or so patterns the way that the variables are named))
+
+then subset training and test on columns where names %in% keepNames
+
+a main thing to do here is probably PCA - high dimensionality of the data may boil down to a small number of PCs.  If analysis doesn't yield anything interesting, can explore alternatives
+
+can also look at some other factors, like structure of the data - lots of factor variables here - what does that imply for our model choice?  maybe something nonlinear would be better.  lots of missing values also.
+
+regularization?  look at lecture on preprocessing and explore options for building some preprocessing into the model
 
 ### Cross Validation in our model
 
