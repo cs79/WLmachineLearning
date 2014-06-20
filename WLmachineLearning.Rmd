@@ -7,24 +7,47 @@ You should create a report describing how you built your model, how you used cro
 
 ## Model Construction
 see scratch notes
+set our global seed; this will be relevant if the tangled version of the Rmd is run.  alternatively can set individual seeds for every action that would require them:
+```{r}
+set.seed(2138)
+```
+
 ### Obtaining the data
 <R code chunk with links, download to data dir; can hide it but refer to it>
+```{r, echo=FALSE, eval=FALSE}
+#download training/testing datasets and load into R
+trainingDataURL <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+testDataURL <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+if(!file.exists("./data")) {dir.create("./data")}
+download.file(trainingDataURL, destfile="./data/WLtrainingData.csv")
+download.file(testDataURL, destfile="./data/WLtestData.csv")
+dateDownloaded <- date()
+training <- read.csv("./data/WLtrainingData.csv")
+test <- read.csv("./data/WLtestData.csv")
+```
 
 ### Exploration and Pre-processing to create model
 
 think carefully about this; push a few exploratory figures to an appendix
 
-### Explanation of Choices Made 
-
-(maybe part of model construction; subsection - talk about exploratory stuff here)
-
-### The final model - interpretation (?) if possible
-
-## Cross Validation
+### Cross Validation in our model
 
 how to do this ?  manually, somehow?  or just note that it's being CV'd in the train (or trainControl ?) function?  look through lecture notes
+
+can specify the method in trainControl(method = "cv") etc. - basically i think just note that this was passed (train() will bootstrap by default, but we can use a different method), and write a justification for why we chose what we did
+
+### Explanation of Choices Made 
+
+(maybe part of model construction; subsection - talk about exploratory stuff here and possibly touch upon overfitting)
+
+## The final model - interpretation (?) if possible
+
+
 
 ## Expectations for Out-of-Sample Error
 
 that the error rate will be higher than what we got on the test set -- more detail than this ?  see lecture notes on out-of-sample error
 
+address overfitting here - what we have done to try to correct for it
+
+## anything else that may be missing from assignment requirements
