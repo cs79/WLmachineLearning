@@ -1,18 +1,30 @@
 Title (refer to HAR)
 ==============================
 
+You should create a report describing how you built your model, how you used cross validation, what you think the expected out of sample error is, and why you made the choices you did.
+
 ## Summary
 
 ## Model Construction
+see scratch notes
+### Obtaining the data
+<R code chunk with links, download to data dir; can hide it but refer to it>
 
-You should create a report describing how you built your model, how you used cross validation, what you think the expected out of sample error is, and why you made the choices you did. 
+### Exploration and Pre-processing to create model
+
+think carefully about this; push a few exploratory figures to an appendix
+
+### Explanation of Choices Made 
+
+(maybe part of model construction; subsection - talk about exploratory stuff here)
+
+### The final model - interpretation (?) if possible
 
 ## Cross Validation
 
+how to do this ?  manually, somehow?  or just note that it's being CV'd in the train (or trainControl ?) function?  look through lecture notes
 
 ## Expectations for Out-of-Sample Error
 
+that the error rate will be higher than what we got on the test set -- more detail than this ?  see lecture notes on out-of-sample error
 
-## Explanation of Choices Made 
-
-(maybe part of model construction; subsection - talk about exploratory stuff here)
