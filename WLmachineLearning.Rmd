@@ -36,22 +36,25 @@ test <- read.csv("./data/WLtestData.csv")
 
 ### Exploration and Pre-processing
 
-Some examination of the dataset reveals a number of features that will be superfluous to our model; our model will attempt to use sensor data to predict a human activity being performed, so first we will clean the data set to remove features that provide no information and/or do not relate to sensor inputs.
+Some examination of the dataset reveals a number of features that will be superfluous to our model; our model will attempt to use sensor data to predict a human activity being performed, so first we will do some pre-processing to clean the data set to remove features that provide no information and/or do not relate to sensor inputs.
 
-#### Cleaning the Data
+First we eliminate features for which there is almost no data available, as these will not inform our model:
 ```{r}
 # get the columns that are mostly empty
 colpctsNA <- rep(NA, ncol(training))
 for(i in 1:ncol(training)){
         colpctsNA[i] <- sum(is.na(training[,i]))/nrow(training)
 }
+```
+We can see that for 67 features, about 98% of the values are missing, so we discard these:
+```{r}
 table(colpctsNA)
-# keep only the ones that have data in them - 
-# others are missing 98% of possible entries
+# keep only the features that have substantial data in them
 training <- training[,colpctsNA==0]
 test <- test[,colpctsNA==0]
 ```
 
+Next, we will strip out factor columns and features that show time or index type variables.  Recall that we would like to build our model based on the sensor inputs, so factors that represent a tangential aspect of the sensor measurement (kurtosis, skewness) will be discarded:
 ```{r}
 # strip out the factor columns and time/index columns, keeping just the sensor
 # columns and the target variable
@@ -63,31 +66,28 @@ training <- training[,keep]
 #test <- test[,keep] need to figure out how to deal with this - looks like for problem submission
 ```
 
-#### Pre-processing
+Our data are now processed, and ready to be used for model training.
 
-Pre-processing will be done in our training function directly, 
+## The final model - Construction, Cross-Validation, and Interpretation
 
-a main thing to do here is probably PCA - high dimensionality of the data may boil down to a small number of PCs.  If analysis doesn't yield anything interesting, can explore alternatives
+For our data, which include 5 categorical possible outcomes, we will construct a random forest model -- the advantages of this model type in our situation are that it does not rely on linearity of the data, and does not assume anything about independence of the features, neither of which would likely be valid assumptions in sensor data coming from similar human activities under instruction to perform them slightly differently.
 
-can also look at some other factors, like structure of the data - lots of factor variables here - what does that imply for our model choice?  maybe something nonlinear would be better.  lots of missing values also.
+In our training function, we use only a randomly-sampled subset of 3500 out of the roughly 19,600 observations available to us to cut down on processing time.  We also specify our cross-validation in the training function, using 10 folds.  The code to build the model and the model summary itself are below:
 
-regularization?  look at lecture on preprocessing and explore options for building some preprocessing into the model
+```{r}
+set.seed(256)
+trainingSub <- training[sample(nrow(training), 3500), ]
+fitRF <- train(classe~., data=trainingSub, method="rf", trControl=trainControl(method="cv", number=10))
+fitRF
+```
 
-### Cross Validation in our model
 
-how to do this ?  manually, somehow?  or just note that it's being CV'd in the train (or trainControl ?) function?  look through lecture notes
-
-can specify the method in trainControl(method = "cv") etc. - basically i think just note that this was passed (train() will bootstrap by default, but we can use a different method), and write a justification for why we chose what we did
 
 ### Explanation of Choices Made 
 
 (maybe part of model construction; subsection - talk about exploratory stuff here and possibly touch upon overfitting)
 
-## The final model - interpretation (?) if possible
-
-
-
-## Expectations for Out-of-Sample Error
+### Expectations for Out-of-Sample Error
 
 that the error rate will be higher than what we got on the test set -- more detail than this ?  see lecture notes on out-of-sample error
 

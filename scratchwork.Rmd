@@ -19,9 +19,18 @@ fitNB <- train(classe~., data=training, method="nb", trControl=trainControl(meth
 
 ```{r}
 set.seed(256)
-fitRF <- train(classe~., data=training, method="rf")
+fitRF <- train(classe~., data=training, method="rf", trControl=trainControl(method="cv", number=5))
 ```
 
+```{r}
+#glm won't work for our outcome types
+set.seed(256)
+fitGLM <- train(classe~., data=training, method="glm", preProcess=c("center", "scale"), trControl=trainControl(method="cv", number=5))
+```
+
+
+
+## cleaning code:
 ```{r}
 colpctsNA <- rep(NA, ncol(training))
 for(i in 1:ncol(training)){
