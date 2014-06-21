@@ -13,7 +13,6 @@ You should create a report describing how you built your model, how you used cro
 ## Summary
 
 ## Model Construction
-see scratch notes
 set our global seed; this will be relevant if the tangled version of the Rmd is run.  alternatively can set individual seeds for every action that would require them:
 ```{r}
 set.seed(2138)
@@ -29,23 +28,44 @@ if(!file.exists("./data")) {dir.create("./data")}
 download.file(trainingDataURL, destfile="./data/WLtrainingData.csv")
 download.file(testDataURL, destfile="./data/WLtestData.csv")
 dateDownloaded <- date()
+```
+```{r}
 training <- read.csv("./data/WLtrainingData.csv")
 test <- read.csv("./data/WLtestData.csv")
 ```
 
-### Exploration and Pre-processing to create model
+### Exploration and Pre-processing
 
-<think carefully about this; push a few exploratory figures to an appendix if there are any>
+Some examination of the dataset reveals a number of features that will be superfluous to our model; our model will attempt to use sensor data to predict a human activity being performed, so first we will clean the data set to remove features that provide no information and/or do not relate to sensor inputs.
 
-NEED TO DEAL WITH THE FACTOR VARIABLES HERE - turn into dummies or whatever, but will cause model fits to crash if they're in there
+#### Cleaning the Data
+```{r}
+# get the columns that are mostly empty
+colpctsNA <- rep(NA, ncol(training))
+for(i in 1:ncol(training)){
+        colpctsNA[i] <- sum(is.na(training[,i]))/nrow(training)
+}
+table(colpctsNA)
+# keep only the ones that have data in them - 
+# others are missing 98% of possible entries
+training <- training[,colpctsNA==0]
+test <- test[,colpctsNA==0]
+```
 
-## REMOVE ALL NON-SENSOR DATA VARIABLES FROM SET - define which columns to toss, then toss from both training and testing
+```{r}
+# strip out the factor columns and time/index columns, keeping just the sensor
+# columns and the target variable
+factorcols <- sapply(training[1,], is.factor)
+nonfactorcols <- factorcols[factorcols==FALSE]
+keep <- c(names(nonfactorcols)[5:length(names(nonfactorcols))], "classe")
+# keep the non-factor columns minus time and index, plus the target variable
+training <- training[,keep]
+#test <- test[,keep] need to figure out how to deal with this - looks like for problem submission
+```
 
-use something like:
+#### Pre-processing
 
-keepNames <- grep(c(pattern 1, pattern 2, pattern 3, etc. - should only be a dozen or so patterns the way that the variables are named))
-
-then subset training and test on columns where names %in% keepNames
+Pre-processing will be done in our training function directly, 
 
 a main thing to do here is probably PCA - high dimensionality of the data may boil down to a small number of PCs.  If analysis doesn't yield anything interesting, can explore alternatives
 

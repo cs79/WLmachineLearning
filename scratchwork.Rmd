@@ -22,4 +22,15 @@ set.seed(256)
 fitRF <- train(classe~., data=training, method="rf")
 ```
 
+```{r}
+colpctsNA <- rep(NA, ncol(training))
+for(i in 1:ncol(training)){
+        colpcts[i] <- sum(is.na(training[,i]))/nrow(training)
+}
+```
 
+```{r}
+factorcols <- sapply(training[1,], is.factor)
+nonfactorcols <- factorcols[factorcols==FALSE]
+keep <- c(names(nonfactorcols)[5:length(names(nonfactorcols))], "classe")
+```

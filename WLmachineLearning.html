@@ -55,21 +55,57 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 
 <div id="title-refer-to-har" class="section level1">
 <h1>Title (refer to HAR)</h1>
+<pre><code>## Loading required package: lattice
+## Loading required package: ggplot2
+## Loading required package: MASS</code></pre>
 <p>You should create a report describing how you built your model, how you used cross validation, what you think the expected out of sample error is, and why you made the choices you did.</p>
 <div id="summary" class="section level2">
 <h2>Summary</h2>
 </div>
 <div id="model-construction" class="section level2">
 <h2>Model Construction</h2>
-<p>see scratch notes set our global seed; this will be relevant if the tangled version of the Rmd is run. alternatively can set individual seeds for every action that would require them:</p>
+<p>set our global seed; this will be relevant if the tangled version of the Rmd is run. alternatively can set individual seeds for every action that would require them:</p>
 <pre class="r"><code>set.seed(2138)</code></pre>
 <div id="obtaining-the-data" class="section level3">
 <h3>Obtaining the data</h3>
 <p><R code chunk with links, download to data dir; can hide it but refer to it></p>
+<pre class="r"><code>training &lt;- read.csv(&quot;./data/WLtrainingData.csv&quot;)
+test &lt;- read.csv(&quot;./data/WLtestData.csv&quot;)</code></pre>
 </div>
-<div id="exploration-and-pre-processing-to-create-model" class="section level3">
-<h3>Exploration and Pre-processing to create model</h3>
-<p>think carefully about this; push a few exploratory figures to an appendix</p>
+<div id="exploration-and-pre-processing" class="section level3">
+<h3>Exploration and Pre-processing</h3>
+<p>Some examination of the dataset reveals a number of features that will be superfluous to our model; our model will attempt to use sensor data to predict a human activity being performed, so first we will clean the data set to remove features that provide no information and/or do not relate to sensor inputs.</p>
+<div id="cleaning-the-data" class="section level4">
+<h4>Cleaning the Data</h4>
+<pre class="r"><code># get the columns that are mostly empty
+colpctsNA &lt;- rep(NA, ncol(training))
+for(i in 1:ncol(training)){
+        colpctsNA[i] &lt;- sum(is.na(training[,i]))/nrow(training)
+}
+table(colpctsNA)</code></pre>
+<pre><code>## colpctsNA
+##                 0 0.979308938946081 
+##                93                67</code></pre>
+<pre class="r"><code># keep only the ones that have data in them - 
+# others are missing 98% of possible entries
+training &lt;- training[,colpctsNA==0]
+test &lt;- test[,colpctsNA==0]</code></pre>
+<pre class="r"><code># strip out the factor columns and time/index columns, keeping just the sensor
+# columns and the target variable
+factorcols &lt;- sapply(training[1,], is.factor)
+nonfactorcols &lt;- factorcols[factorcols==FALSE]
+keep &lt;- c(names(nonfactorcols)[5:length(names(nonfactorcols))], &quot;classe&quot;)
+# keep the non-factor columns minus time and index, plus the target variable
+training &lt;- training[,keep]
+#test &lt;- test[,keep] need to figure out how to deal with this - looks like for problem submission</code></pre>
+</div>
+<div id="pre-processing" class="section level4">
+<h4>Pre-processing</h4>
+<p>Pre-processing will be done in our training function directly,</p>
+<p>a main thing to do here is probably PCA - high dimensionality of the data may boil down to a small number of PCs. If analysis doesn’t yield anything interesting, can explore alternatives</p>
+<p>can also look at some other factors, like structure of the data - lots of factor variables here - what does that imply for our model choice? maybe something nonlinear would be better. lots of missing values also.</p>
+<p>regularization? look at lecture on preprocessing and explore options for building some preprocessing into the model</p>
+</div>
 </div>
 <div id="cross-validation-in-our-model" class="section level3">
 <h3>Cross Validation in our model</h3>
