@@ -1,26 +1,29 @@
 Title (refer to HAR)
 ==============================
-```{r, echo=FALSE, results='hide'}
+```{r, echo=FALSE, results='hide', message=FALSE}
 library(caret)
 library(ggplot2)
 library(lattice)
 library(klaR)
 library(MASS)
-
+library(randomForest)
 ```
 You should create a report describing how you built your model, how you used cross validation, what you think the expected out of sample error is, and why you made the choices you did.
 
 ## Summary
 
+quick summary goes here
+
 ## Model Construction
-set our global seed; this will be relevant if the tangled version of the Rmd is run.  alternatively can set individual seeds for every action that would require them:
+
+Our model construction will happen in a few parts: obtaining and loading the data, performing some pre-processing, and then building and evaluating our model from the processed data.  We can set a global seed in R before we begin to make the model construction performed in the .Rmd source file reproducable:
 ```{r}
 set.seed(2138)
 ```
 
 ### Obtaining the data
-<R code chunk with links, download to data dir; can hide it but refer to it>
-```{r, echo=FALSE, eval=FALSE}
+First we need to obtain the data that we will be using from the links provided:
+```{r, eval=FALSE}
 #download training/testing datasets and load into R
 trainingDataURL <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
 testDataURL <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
@@ -29,6 +32,7 @@ download.file(trainingDataURL, destfile="./data/WLtrainingData.csv")
 download.file(testDataURL, destfile="./data/WLtestData.csv")
 dateDownloaded <- date()
 ```
+After downloading, we load the data into R:
 ```{r}
 training <- read.csv("./data/WLtrainingData.csv")
 test <- read.csv("./data/WLtestData.csv")
@@ -40,7 +44,7 @@ Some examination of the dataset reveals a number of features that will be superf
 
 First we eliminate features for which there is almost no data available, as these will not inform our model:
 ```{r}
-# get the columns that are mostly empty
+# get the column empty percentages
 colpctsNA <- rep(NA, ncol(training))
 for(i in 1:ncol(training)){
         colpctsNA[i] <- sum(is.na(training[,i]))/nrow(training)
@@ -63,34 +67,24 @@ nonfactorcols <- factorcols[factorcols==FALSE]
 keep <- c(names(nonfactorcols)[5:length(names(nonfactorcols))], "classe")
 # keep the non-factor columns minus time and index, plus the target variable
 training <- training[,keep]
-#test <- test[,keep] need to figure out how to deal with this - looks like for problem submission
 ```
 
 Our data are now processed, and ready to be used for model training.
 
-## The final model - Construction, Cross-Validation, and Interpretation
+## The Final Model - Construction, Cross-Validation, and Testing
 
 For our data, which include 5 categorical possible outcomes, we will construct a random forest model -- the advantages of this model type in our situation are that it does not rely on linearity of the data, and does not assume anything about independence of the features, neither of which would likely be valid assumptions in sensor data coming from similar human activities under instruction to perform them slightly differently.
 
-In our training function, we use only a randomly-sampled subset of 3500 out of the roughly 19,600 observations available to us to cut down on processing time.  We also specify our cross-validation in the training function, using 10 folds.  The code to build the model and the model summary itself are below:
+In our training function, we use only a randomly-sampled subset of 10,000 out of the roughly 19,600 observations available to us to cut down on processing time.  We also specify our cross-validation in the training function, using 15 folds.  Cross-validation, in addition to helping us assess our model accuracy, will help reduce overfitting, as the model is being trained on different subsamples during its construction.  The code to build the model and the model summary itself are below:
 
-```{r}
+```{r, cache=TRUE}
 set.seed(256)
-trainingSub <- training[sample(nrow(training), 3500), ]
-fitRF <- train(classe~., data=trainingSub, method="rf", trControl=trainControl(method="cv", number=10))
+trainingSub <- training[sample(nrow(training), 10000), ]
+fitRF <- train(classe~., data=trainingSub, method="rf", trControl=trainControl(method="cv", number=15))
 fitRF
 ```
 
+### Accuracy and Expectations for Out-of-Sample Error
 
+We can see that the accuracy of our model is 98.9% with a standard deviation of 0.5%, based on the cross-validation included in our training function.  We would expect the out-of-sample error rate to be greater than 1.1%, of course; while our model fits samples of the data that it was built on accurately, it will always fit less accurately when applied to new, out-of-sample data sets.
 
-### Explanation of Choices Made 
-
-(maybe part of model construction; subsection - talk about exploratory stuff here and possibly touch upon overfitting)
-
-### Expectations for Out-of-Sample Error
-
-that the error rate will be higher than what we got on the test set -- more detail than this ?  see lecture notes on out-of-sample error
-
-address overfitting here - what we have done to try to correct for it
-
-## anything else that may be missing from assignment requirements
